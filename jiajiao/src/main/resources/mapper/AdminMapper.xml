@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace表示命名空间 -->
+<mapper namespace="com.bdu.jiajiao.mapper.AdminMapper">
 
-<mapper namespace="com.bysj.dao.AdminMapper">
+    <select id="login" resultType="Admin">
+        select *
+        from jiajiao.admin
+        where username = #{username}
+          and password = #{password}
+    </select>
 
-    <select id="queryAllAdmin" resultType="Admin">
-        select * from admin
-    </select>
-    <select id="queryAdminById" resultType="Admin">
-        select * from admin where id = #{id}
-    </select>
-    <select id="queryAdminByUsername" resultType="Admin">
-        select * from admin where username = #{username}
-    </select>
-    <insert id="addAdmin" parameterType="Admin">
-        insert into admin(username,password,phone,level)
-        values(#{username},#{password},#{phone},#{level})
-    </insert>
     <update id="updateAdmin" parameterType="Admin">
-        update admin set password=#{password},phone=#{phone},level=#{level} where id = #{id}
+        update jiajiao.admin
+        set username=#{username},
+            password=#{password},
+            create_time=#{createTime},
+            token=#{token}
+        where id = #{id}
     </update>
-    <delete id="deleteAdmin" >
-        delete from admin where id = #{id}
-    </delete>
 
+    <update id="changePassword">
+        update jiajiao.admin
+        set password=#{password}
+        where id = #{id}
+    </update>
 </mapper>
