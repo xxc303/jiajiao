@@ -1,6 +1,7 @@
 package com.bdu.jiajiao.mapper;
 
 import com.bdu.jiajiao.pojo.Comment;
+import com.bdu.jiajiao.pojo.Reply;
 
 import java.util.List;
 
@@ -16,4 +17,12 @@ public interface CommentMapper {
     int addComment(Comment comment);
 
     int countComment(int id);
+
+    List<Comment> queryAllComment();
+
+    int addReply(Reply reply);
+
+    List<Reply> queryReplyByCommentId(int commentId);
+
+    List<Reply> queryAllReply();
 }

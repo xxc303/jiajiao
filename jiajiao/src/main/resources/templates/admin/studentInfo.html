@@ -93,7 +93,7 @@
                                                 <td th:text="${student.phone}"></td>
                                                 <td th:text="${student.item}"></td>
                                                 <td th:text="${student.price}"></td>
-                                                <td th:text="${student.createTime}"></td>
+                                                <td th:text="${#dates.format(student.createTime,'yyyy-MM-dd')}"></td>
                                                 <!--                        <th th:text="${student.description}"></th>-->
                                                 <th th:text="删除" style="width: 62px;"></th>
                                             </tr>

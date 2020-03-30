@@ -8,13 +8,32 @@
     </select>
 
     <insert id="addComment" parameterType="Comment">
-        insert into jiajiao.comment (parent_id, commentator_id, commentator, creat_time, content, item, overview)
-        values (#{parentId}, #{commentatorId}, #{commentator}, #{creatTime}, #{content}, #{item}, #{overview})
+        insert into jiajiao.comment (parent_id, commentator_id, commentator, create_time, content, item, overview)
+        values (#{parentId}, #{commentatorId}, #{commentator}, #{createTime}, #{content}, #{item}, #{overview})
     </insert>
 
     <select id="countComment" resultType="int" parameterType="int">
         select count(1)
         from jiajiao.comment
         where parent_id = #{parentId}
+    </select>
+
+    <select id="queryAllComment" resultType="Comment">
+        select * from jiajiao.comment
+    </select>
+
+    <insert id="addReply" parameterType="Reply">
+        insert into jiajiao.reply (comment_id, content, username, create_time)
+        values (#{commentId}, #{content},#{username}, #{createTime})
+    </insert>
+
+    <select id="queryReplyByCommentId" resultType="Reply">
+        select *
+        from jiajiao.reply
+        where comment_id = #{commentId}
+    </select>
+
+    <select id="queryAllReply" resultType="Reply">
+        select * from jiajiao.reply
     </select>
 </mapper>

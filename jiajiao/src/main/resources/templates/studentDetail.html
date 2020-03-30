@@ -188,13 +188,12 @@
                     </div>
                 </li>
                 <li class="list-group-item">
-                    <div class="list-group">
-                        <strong><h4 class="list-group-title">热门家教信息</h4></strong>
-                        <a type="button" class="list-group-item">首都师范大学家教</a>
-                        <a type="button" class="list-group-item">北京航空航天大学家教</a>
-                        <a type="button" class="list-group-item">北京理工大学家教</a>
-                        <a type="button" class="list-group-item">北京化工大学家教</a>
-                        <a type="button" class="list-group-item">北京工业大学家教</a>
+                    <div class="list-group" >
+                        <strong><h4 class="list-group-title">热门文章</h4></strong>
+                        <div type="button" class="list-group-item" th:each="article : ${articleList}">
+                            <span class="glyphicon glyphicon-paperclip" style="padding-right: 5px;"></span>
+                            <a th:href="@{'/student/article/'+${article.id}}"><span class="article" th:text="${article.title}"></span></a>
+                        </div>
                     </div>
                 </li>
             </ul>

@@ -13,7 +13,7 @@ public class Comment {
     private int parentId;
     private int commentatorId;//评论人ID
     private String commentator;//评论人姓名
-    private Date creatTime;
+    private Date createTime;
     private String content;
     private String item;//科目
     private String overview;//综合评价
@@ -50,12 +50,12 @@ public class Comment {
         this.commentator = commentator;
     }
 
-    public Date getCreatTime() {
-        return creatTime;
+    public Date getCreateTime() {
+        return createTime;
     }
 
-    public void setCreatTime(Date creatTime) {
-        this.creatTime = creatTime;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
     public String getContent() {
@@ -89,7 +89,7 @@ public class Comment {
                 ", parentId=" + parentId +
                 ", commentatorId=" + commentatorId +
                 ", commentator='" + commentator + '\'' +
-                ", creatTime=" + creatTime +
+                ", creatTime=" + createTime +
                 ", content='" + content + '\'' +
                 ", item='" + item + '\'' +
                 ", overview='" + overview + '\'' +

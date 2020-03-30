@@ -8,6 +8,7 @@
     <script src="/js/jquery-3.4.1.min.js" type="text/javascript"></script>
     <script src="/vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
     <script src="/vendor/popper.js/umd/popper.min.js" type="text/javascript"> </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
     <script src="/js/jiajiao.js" type="text/javascript"></script>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/bootstrap-theme.min.css">
@@ -140,12 +141,12 @@
                         <br><br>
                         <div class="text_left"style="width: 90px;height: 24px;position: absolute">联系电话：</div>
                             <span>
-                                <button type="button" class="btn btn-success"style="margin-left: 90px" th:if="${session.student!= null||session.teacher!=null}" th:text="${teacher.phone}" id="Tea_phone"></button>
-                                <button type="button" class="btn btn-success"style="margin-left: 90px" th:if="${session.student== null}" th:text="登录查看电话" ></button>
+                                <button type="button" class="btn btn-success"style="margin-left: 90px" th:if="${session.student!= null}" th:text="${teacher.phone}" id="Tea_phone"></button>
+                                <button type="button" class="btn btn-success"style="margin-left: 90px" th:if="${session.student== null}" th:text="学员登录查看电话" ></button>
                             </span>
                             <br>
                             <br>
-                        <div class="text_left"style="width: 90px;height: 24px;position: relative"><button type="button" class="btn btn-success" onclick="reserve()">预约</button></div>
+                        <div class="text_left"style="width: 90px;height: 24px;position: relative"><button type="button" class="btn btn-success" onclick="reserve()" th:if="${session.student!= null}">预约</button></div>
                         </div>
                         <br><br>
                         <div class="text_left"style="width: 90px;height: 24px;position: absolute">个人简介：</div> <div th:text="${teacher.description}" style="margin-left: 90px;font-size: 15px;line-height: 228%;"></div>
@@ -161,7 +162,7 @@
                     <li th:each="comment : ${comments}">
                         <div class="nr2">
                             <span class="text_left" style="font-size: 15px; color:black" th:text="${comment.commentator}">岑女士</span>
-                            <span class="comment_left" th:text="${#dates.format(comment.creatTime,'yyyy-MM-dd')}+'发布'" style="float: right"></span>
+                            <span class="comment_left" th:text="${#dates.format(comment.createTime,'yyyy-MM-dd')}+'发布'" style="float: right"></span>
                         </div>
                         <br>
                         <div class="nr2">
@@ -173,11 +174,25 @@
                         <div class="nr2">
                             <span class="comment_left">综合评价：</span> <span class="comment_right" th:text="${comment.overview}" style="margin-right: 50px;color:green"></span>
                         </div>
-                        <span class="glyphicon glyphicon-comment comment_reply"></span>
+                        <span class="glyphicon glyphicon-comment comment_reply" th:data-id="${comment.id}" onclick="collapseComments(this)"></span>
+
+                        <div class="collapse sub-comment" th:id="${'comment-'+comment.id}">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="评论一下……" autocomplete="off"
+                                       th:id="${'input-'+comment.id}">
+                                <button type="button" class="btn btn-success pull-right" onclick="reply(this)"
+                                        th:data-id="${comment.id}">
+                                    评论
+                                </button>
+                            </div>
+                        </div>
                         <hr>
                     </li>
                 </ul>
             </div>
+
+
+
             <hr style="border: 2px solid #ddd">
             <a class="btn btn-primary" role="button" data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
                 写家教点评
@@ -223,13 +238,12 @@
                     </div>
                 </li>
                 <li class="list-group-item">
-                    <div class="list-group">
-                        <strong><h4 class="list-group-title">热门家教信息</h4></strong>
-                        <a type="button" class="list-group-item">首都师范大学家教</a>
-                        <a type="button" class="list-group-item">北京航空航天大学家教</a>
-                        <a type="button" class="list-group-item">北京理工大学家教</a>
-                        <a type="button" class="list-group-item">北京化工大学家教</a>
-                        <a type="button" class="list-group-item">北京工业大学家教</a>
+                    <div class="list-group" >
+                        <strong><h4 class="list-group-title">热门文章</h4></strong>
+                        <div type="button" class="list-group-item" th:each="article : ${articleList}">
+                            <a th:href="@{'/teacher/toDetail/'+${article.creatorId}}"><span class="article" th:text="${article.creator}+':'" style="display: inline-block;width: 50px"></span></a>
+                            <a th:href="@{'/teacher/article/'+${article.id}}"><span class="article" th:text="${article.title}"></span></a>
+                        </div>
                     </div>
                 </li>
             </ul>

@@ -7,10 +7,19 @@
     </insert>
 
     <select id="queryByTeaName" resultType="Order">
-        select * from jiajiao.orders where  tea_name= #{teaName}
+        select * from jiajiao.orders where  tea_name= #{teaName} and type = 0
     </select>
 
     <select id="queryByStuName" resultType="Order">
-        select * from jiajiao.orders where  stu_name= #{stuName}
+        select * from jiajiao.orders where  stu_name= #{stuName} and type = 0
     </select>
+
+    <select id="queryOrder" resultType="Order">
+        select * from jiajiao.orders where  stu_name= #{stuName} and tea_name= #{teaName}
+    </select>
+
+    <update id="updateOrder">
+        update jiajiao.orders
+        set type = 1
+    </update>
 </mapper>

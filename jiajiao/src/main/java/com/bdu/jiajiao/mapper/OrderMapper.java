@@ -1,6 +1,7 @@
 package com.bdu.jiajiao.mapper;
 
 import com.bdu.jiajiao.pojo.Order;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -16,4 +17,10 @@ public interface OrderMapper {
     List<Order> queryByTeaName(String teaName);
 
     List<Order> queryByStuName(String stuName);
+
+    Order queryOrder(String teaName,String stuName);
+
+    void updateOrder();
+
+
 }
