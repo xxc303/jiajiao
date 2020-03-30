@@ -1,8 +1,10 @@
 package com.bdu.jiajiao.controller;
 
 import com.bdu.jiajiao.dto.*;
+import com.bdu.jiajiao.mapper.ArticleMapper;
 import com.bdu.jiajiao.mapper.OrderMapper;
 import com.bdu.jiajiao.mapper.StudentMapper;
+import com.bdu.jiajiao.pojo.Article;
 import com.bdu.jiajiao.pojo.Order;
 import com.bdu.jiajiao.pojo.Student;
 import com.bdu.jiajiao.pojo.Teacher;
@@ -43,6 +45,62 @@ public class StudentController {
     @Autowired
     private OrderMapper orderMapper;
 
+    @Autowired
+    private ArticleMapper articleMapper;
+
+    @RequestMapping("/article/{id}")
+    public String article(@PathVariable("id") int id,Model model,HttpServletRequest request) {
+        Article article1 = articleMapper.queryById(id);
+        Teacher teacher = (Teacher) request.getSession().getAttribute("teacher");
+        Student student = (Student) request.getSession().getAttribute("student");
+        List<Article> articleList = articleMapper.queryAllStuArticle();
+        if (teacher!= null){
+            model.addAttribute("type", "teacher");
+        }else if (student != null){
+            model.addAttribute("type", "student");
+        }
+        model.addAttribute("article1",article1);
+        model.addAttribute("articleList",articleList);
+        return "article1";
+    }
+
+    /**
+     * 分享功能
+     * @param model
+     * @return
+     */
+    @RequestMapping("/toPublish")
+    public String toPublish(Model model){
+        model.addAttribute("type", "student");
+        return "publish";
+    }
+
+    @RequestMapping("/publish")
+    public String publish(Article article, Model model, HttpServletRequest request){
+        Student student = (Student) request.getSession().getAttribute("student");
+        article.setCreator(student.getUsername());
+        article.setCreatorId(student.getId());
+        article.setCreateTime(new Date());
+        article.setType(0);
+        articleMapper.addArticle(article);
+        model.addAttribute("type", "student");
+        return "redirect:/student/toPublish";
+    }
+
+    /**
+     * 取消订单
+     */
+    @RequestMapping("/deleteOrder/{teaname}")
+    public String deleteOrder(@PathVariable("teaname") String teaname, Model model, HttpServletRequest request) {
+        Student student = (Student) request.getSession().getAttribute("student");
+        Order order = orderMapper.queryOrder(teaname, student.getUsername());
+        orderMapper.updateOrder();
+        model.addAttribute("type", "student");
+        return "myOrders";
+
+
+    }
+
     /**
      * 预约
      */
@@ -66,6 +124,7 @@ public class StudentController {
         order.setAddress(student.getAddress());
         order.setPrice(student.getPrice());
         order.setCreateTime(new Date());
+        order.setType(0);
         orderMapper.addOrder(order);
         return ResultDTO.okOf();
     }
@@ -139,11 +198,11 @@ public class StudentController {
      * 查看我的家教订单
      */
     @RequestMapping("/toMyOrders")
-    public String toMyOrders(Model model,HttpServletRequest request) {
+    public String toMyOrders(Model model, HttpServletRequest request) {
         model.addAttribute("type", "student");
         Student student = (Student) request.getSession().getAttribute("student");
         List<Order> orders = orderMapper.queryByStuName(student.getUsername());
-        model.addAttribute("orders",orders);
+        model.addAttribute("orders", orders);
         return "myOrders";
     }
 
@@ -196,7 +255,10 @@ public class StudentController {
     @RequestMapping("/toDetail/{id}")
     public String todetail(Model model, @PathVariable(name = "id") int id) {
         Student student = studentMapper.queryStudentById(id);
+
+        List<Article> articleList = articleMapper.queryAllStuArticle();
         model.addAttribute("student", student);
+        model.addAttribute("articleList", articleList);
         return "studentDetail";
     }
 
@@ -283,20 +345,13 @@ public class StudentController {
     public String students(Model model,
                            @RequestParam(defaultValue = "1") int pageNum,
                            @RequestParam(defaultValue = "1") int pageSize) {
-        //List<Student> studentList = studentMapper.queryAllStudent();
         List<Student> studentsList = studentService.queryAllStudent(pageNum, pageSize);
-        //List<Student> students = new ArrayList<>();
-        //for (Student student : studentList) {
-        //    if (student.getAddress() == null) {
-        //        //return null;
-        //    } else {
-        //        students.add(student);
-        //    }
-        //}
         PageInfo<Student> pageInfo = new PageInfo<>(studentsList);
-        //model.addAttribute("students", students);
+
+        List<Article> articleList = articleMapper.queryAllStuArticle();
         model.addAttribute("pageInfo", pageInfo);
         model.addAttribute("type", "student");
+        model.addAttribute("articleList", articleList);
         return "student";
     }
 

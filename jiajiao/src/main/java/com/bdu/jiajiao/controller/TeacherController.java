@@ -4,15 +4,12 @@ import com.bdu.jiajiao.dto.BaseInfoDTO;
 import com.bdu.jiajiao.dto.PasswordDTO;
 import com.bdu.jiajiao.dto.TeaPublicOrderDTO;
 import com.bdu.jiajiao.mapper.CommentMapper;
+import com.bdu.jiajiao.mapper.ArticleMapper;
 import com.bdu.jiajiao.mapper.OrderMapper;
 import com.bdu.jiajiao.mapper.TeacherMapper;
-import com.bdu.jiajiao.pojo.Comment;
-import com.bdu.jiajiao.pojo.Order;
-import com.bdu.jiajiao.pojo.Teacher;
+import com.bdu.jiajiao.pojo.*;
 import com.bdu.jiajiao.service.TeacherService;
 import com.github.pagehelper.PageInfo;
-import com.sun.org.apache.xpath.internal.operations.Or;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -46,6 +43,49 @@ public class TeacherController {
     @Autowired
     private OrderMapper orderMapper;
 
+    @Autowired
+    private ArticleMapper articleMapper;
+
+    @RequestMapping("/article/{id}")
+    public String article(@PathVariable("id") int id,Model model,HttpServletRequest request){
+        Article article1 = articleMapper.queryById(id);
+        Teacher teacher = (Teacher) request.getSession().getAttribute("teacher");
+        Student student = (Student) request.getSession().getAttribute("student");
+        Teacher teacher1 = teacherService.findById(article1.getCreatorId());
+        List<Article> articleList = articleMapper.queryAllTeaArticle();
+        if (teacher!= null){
+            model.addAttribute("type", "teacher");
+        }else if (student != null){
+            model.addAttribute("type", "student");
+        }
+        model.addAttribute("article1",article1);
+        model.addAttribute("teacher1",teacher1);
+        model.addAttribute("articleList",articleList);
+        return "article";
+    }
+
+    /**
+     * 分享功能
+     * @param model
+     * @return
+     */
+    @RequestMapping("/toPublish")
+    public String toPublish(Model model){
+        model.addAttribute("type", "teacher");
+        return "publish";
+    }
+
+    @RequestMapping("/publish")
+    public String publish(Article article, Model model, HttpServletRequest request){
+        Teacher teacher = (Teacher) request.getSession().getAttribute("teacher");
+        article.setCreator(teacher.getUsername());
+        article.setCreatorId(teacher.getId());
+        article.setCreateTime(new Date());
+        article.setType(1);
+        articleMapper.addArticle(article);
+        model.addAttribute("type", "teacher");
+        return "redirect:/teacher/toPublish";
+    }
 
     /**
      * 查询
@@ -125,7 +165,7 @@ public class TeacherController {
     }
 
     /**
-     * 查看家教信息（publicOrder）
+     * 查看个人发布信息（publicOrder）
      */
     @RequestMapping("/toPublicOrder")
     public String toPublicOrder(Model model, HttpServletRequest request) {
@@ -177,10 +217,13 @@ public class TeacherController {
         String[] items = teacher.getItem().trim().split(" ");
         List<Comment> comments = commentMapper.queryCommentByParentId(id);
         int counts = commentMapper.countComment(id);
+
+        List<Article> articleList = articleMapper.queryAllTeaArticle();
         model.addAttribute("items", items);
         model.addAttribute("teacher", teacher);
         model.addAttribute("comments", comments);
         model.addAttribute("count", counts);
+        model.addAttribute("articleList", articleList);
         return "teacherDetail";
     }
 
@@ -261,13 +304,23 @@ public class TeacherController {
         return "redirect:/";
     }
 
+    /**
+     * 教师列表
+     * @param model
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     @RequestMapping("/teacher")
     public String teachers(Model model,
                            @RequestParam(defaultValue = "1") int pageNum,
                            @RequestParam(defaultValue = "1") int pageSize) {
         List<Teacher> teachersList = teacherService.queryAllTeacher(pageNum, pageSize);
         PageInfo<Teacher> pageInfo = new PageInfo<>(teachersList);
+
+        List<Article> articleList = articleMapper.queryAllTeaArticle();
         model.addAttribute("pageInfo", pageInfo);
+        model.addAttribute("articleList", articleList);
         model.addAttribute("type", "teacher");
         return "teacher";
     }

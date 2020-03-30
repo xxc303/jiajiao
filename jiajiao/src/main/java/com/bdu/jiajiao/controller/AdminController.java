@@ -1,9 +1,11 @@
 package com.bdu.jiajiao.controller;
 
-import com.bdu.jiajiao.pojo.Admin;
-import com.bdu.jiajiao.pojo.Student;
-import com.bdu.jiajiao.pojo.Teacher;
+import com.bdu.jiajiao.dto.PasswordDTO;
+import com.bdu.jiajiao.mapper.ArticleMapper;
+import com.bdu.jiajiao.mapper.CommentMapper;
+import com.bdu.jiajiao.pojo.*;
 import com.bdu.jiajiao.service.AdminService;
+import com.bdu.jiajiao.service.CommentService;
 import com.bdu.jiajiao.service.StudentService;
 import com.bdu.jiajiao.service.TeacherService;
 import com.github.pagehelper.PageInfo;
@@ -17,6 +19,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,11 +41,92 @@ public class AdminController {
     @Autowired
     private StudentService studentService;
 
+    @Autowired
+    private ArticleMapper articleMapper;
+
+    @Autowired
+    private CommentService commentService;
+
+
+    /**
+     * 修改密码
+     */
+    @RequestMapping("/toChangePwd")
+    public String toCPW(Model model) {
+        model.addAttribute("type", "admin");
+        return "/admin/changePassword";
+    }
+
+    @RequestMapping("/changePWD")
+    public String changePWD(PasswordDTO passwordDTO, Model model, HttpServletRequest request, RedirectAttributes modelMap) {
+        model.addAttribute("type", "admin");
+        Admin admin = (Admin) request.getSession().getAttribute("admin");
+        if (admin.getPassword().equals(passwordDTO.getOldPassword())) {
+            admin.setPassword(passwordDTO.getNewPassword());
+            adminService.updateAdmin(admin);
+            modelMap.addFlashAttribute("msg_success", "修改成功");
+        } else {
+            modelMap.addFlashAttribute("msg_fail", "原密码错误");
+        }
+        return "redirect:/admin/toChangePwd";
+    }
+
+    /**
+     * 分享功能
+     *
+     * @param model
+     * @return
+     */
+    @RequestMapping("/toPublish")
+    public String toPublish(Model model) {
+        model.addAttribute("type", "admin");
+        return "/admin/publish";
+    }
+
+    @RequestMapping("/publish")
+    public String publish(Article article, Model model, HttpServletRequest request) {
+        Admin admin = (Admin) request.getSession().getAttribute("admin");
+        article.setCreator(admin.getUsername());
+        article.setCreatorId(admin.getId());
+        article.setCreateTime(new Date());
+        article.setType(3);
+        articleMapper.addArticle(article);
+        model.addAttribute("type", "admin");
+        return "redirect:/admin/toPublish";
+    }
+
+    /**
+     * 评论管理
+     */
+    @RequestMapping("/commentInfo")
+    public String comment(Model model, @RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "1") int pageSize) {
+        List<Comment> comments = commentService.queryAllComment(pageNum,pageSize);
+       // List<Reply> replies = commentService.queryAllReply(pageNum,pageSize);
+        PageInfo<Comment> commentList = new PageInfo<>(comments);
+      //  PageInfo<Reply> replyList = new PageInfo<>(replies);
+        model.addAttribute("commentList", commentList);
+       // model.addAttribute("replyList", replyList);
+        model.addAttribute("type", "admin");
+        return "/admin/commentInfo";
+    }
+
+    /**
+     * 回复管理
+     */
+    @RequestMapping("/replyInfo")
+    public String reply(Model model, @RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "1") int pageSize){
+        List<Reply> replies = commentService.queryAllReply(pageNum,pageSize);
+        PageInfo<Reply> replyList = new PageInfo<>(replies);
+        model.addAttribute("replyList", replyList);
+        model.addAttribute("type", "admin");
+        return "/admin/replyInfo";
+    }
+
     /**
      * 学员删除
      */
     @DeleteMapping("deleteStu/{id}")
-    public String deleteStu(Model model, @PathVariable("id")int id){
+    public String deleteStu(Model model, @PathVariable("id") int id) {
         studentService.delete(id);
         model.addAttribute("type", "admin");
         return "/admin/teacherInfo";
@@ -52,7 +136,7 @@ public class AdminController {
      * 教师删除
      */
     @DeleteMapping("/deleteTea/{id}")
-    public String deleteTea(Model model,@PathVariable("id")int id){
+    public String deleteTea(Model model, @PathVariable("id") int id) {
         teacherService.delete(id);
         model.addAttribute("type", "admin");
         return "/admin/studentInfo";
